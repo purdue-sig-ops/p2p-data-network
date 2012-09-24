@@ -1,14 +1,24 @@
 #include <string.h>
 #include <stdlib.h>
+#include <openssl/sha.h>
 #include "id.h"
 
-id * id_alloc(int8_t * data)
+id * id_alloc(const unsigned char * data, unsigned long size)
 {
 	//allocate space for the id
 	id * ident = malloc(sizeof(id));
 	ident->data = malloc(M / 8);
-	memcpy(ident->data, data, M / 8);
+	SHA1(data, size, ident->data);
 	return ident; 
+}
+
+id * id_copy(id * ident)
+{
+    //copy ident and return it
+    id * cpy = malloc(sizeof(id));
+    cpy->data = malloc(M / 8);
+    memcpy(cpy->data, ident->data, M / 8);
+    return cpy;
 }
 
 void id_free(id * ident)
@@ -16,12 +26,6 @@ void id_free(id * ident)
 	//free the actual id, then the id struct
 	free(ident->data);
 	free(ident);
-}
-
-id * id_copy(id * org)
-{
-	//just allocate a new id with our identifier
-	return id_alloc(org->data);
 }
 
 //algorithm copied from ID.java in open-chord_1.0.5
@@ -42,6 +46,14 @@ int id_compare(id * l, id * r)
 	return 0;
 }
 
+//helper function to directly get an id with data specified in the parameter - no copying
+id * id_load(int8_t * data)
+{
+    id * ret = malloc(sizeof(id));
+    ret->data = data;
+    return ret;
+}
+
 //algorithm copied from ID.java in open-chord_1.0.5
 //open-chord.sourceforge.net
 id * id_add_p2(id * ident, int p)
@@ -51,7 +63,6 @@ id * id_add_p2(id * ident, int p)
 	int8_t value_to_add = to_add[p % 8];
 	int8_t old_value;
 	int8_t * copy;
-	id * ret;
 	if(p >= 0 && p < M)
 	{
 		copy = malloc(M / 8);
@@ -63,9 +74,7 @@ id * id_add_p2(id * ident, int p)
 			value_to_add = 1;
 		}
 		while(old_value < 0 && copy[index_of_byte] >= 0 && index_of_byte-- > 0);
-		ret = id_alloc(copy);
-		free(copy);
-		return ret;
+		return id_load(copy);
 	}
 	else
 		return NULL;

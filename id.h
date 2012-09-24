@@ -8,15 +8,15 @@
 typedef struct
 {
 	//M Bit Identifier
-	int8_t * data;
+	unsigned char * data;
 } id;
 
 //Allocate a ID
-id * id_alloc();
+id * id_alloc(const unsigned char * data, unsigned long size);
 //Free a ID
 void id_free(id * ident);
 //Copy a ID
-id * id_copy();
+id * id_copy(id * ident);
 //Compare two IDs
 int id_compare(id * l, id * r);
 //Get an ID that is equal to (ident + 2^p)

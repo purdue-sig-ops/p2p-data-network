@@ -5,7 +5,7 @@ node * node_alloc(int32_t ip)
 {
 	//allocate the node
 	node * n = malloc(sizeof(node));
-	//n->id = id_alloc(sha1(ip));
+	n->ident = id_alloc((char*)&ip, 4);
 	n->ip = ip;
 	return n;
 }
