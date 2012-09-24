@@ -46,26 +46,30 @@ id * finger_table_start(finger_table * t, int i)
 int finger_table_interval(finger_table * t, int i, id * value)
 {
 	id * low, * high;
-	int res;
 	//if the index is valid
-	if(i > 0 && i < M)
+	if(i > 0 && i <= M)
 	{
 		//get the bounds of the interval
 		low = finger_table_start(t, i);
-		high = finger_table_start(t, i + 1);
-		res = id_compare(value, low);
-		//if the id given is greater than or equal to the bound 
-		if(res == 1 || res == 0)
-		{
-			res = id_compare(value, high);
-			//if the id given is less than the bound
-			if(res == -1)
-				res = 0;
-		}
-		return !res;
-	}
-	else
-		return 0;
+		high = finger_table_start(t, (i + 1) % M);
+        //if high < low (interval wraps around circle), checks are diff
+        switch(id_compare(high, low))
+        {
+            case 1:
+                return id_compare(low, value) <= 0 && id_compare(high, value) == 1;
+            case -1:
+                return id_compare(low, value) <= 0 || id_compare(high, value) == 1;
+            default:
+                return 0;
+        }
+    }
+}
+
+//set the finger node
+void finger_table_set_node(finger_table * t,int i, node * n)
+{
+	if(i > 0 && i <= M)
+		t->nodes[i] = n;
 }
 
 //look up the actual finger node - node operation as defined in Chord paper
@@ -75,11 +79,4 @@ node * finger_table_node(finger_table * t, int i)
 		return t->nodes[i];
 	else
 		return NULL;
-}
-
-//set the finger node
-void finger_table_set_node(finger_table * t,int i, node * n)
-{
-	if(i > 0 && i <= M)
-		t->nodes[i] = n;
 }

@@ -52,7 +52,7 @@ id * id_add_p2(id * ident, int p)
 	int8_t old_value;
 	int8_t * copy;
 	id * ret;
-	if(p > 0 && p < M)
+	if(p >= 0 && p < M)
 	{
 		copy = malloc(M / 8);
 		memcpy(copy, ident->data, M / 8);
