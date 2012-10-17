@@ -8,8 +8,8 @@ id * id_alloc(const unsigned char * data, unsigned long size)
 	//allocate space for the id
 	id * ident = malloc(sizeof(id));
 	ident->data = malloc(M / 8);
-	SHA1(data, size, ident->data);
-	return ident; 
+	//SHA1(data, size, ident->data);
+	return ident;
 }
 
 id * id_copy(id * ident)
@@ -47,7 +47,7 @@ int id_compare(id * l, id * r)
 }
 
 //helper function to directly get an id with data specified in the parameter - no copying
-id * id_load(int8_t * data)
+static id * id_load(int8_t * data)
 {
     id * ret = malloc(sizeof(id));
     ret->data = data;

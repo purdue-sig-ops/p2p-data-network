@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   util.h
  * Author: caleb
  *
@@ -11,11 +11,12 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
+
 #define ERR 1
 
 void error (char *);
 void error_t (int, char *);
+int logb2 (int);
 
 #ifdef	__cplusplus
 }

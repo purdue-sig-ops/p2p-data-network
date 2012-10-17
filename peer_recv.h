@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   peer_recv.h
  * Author: caleb
  *
@@ -12,11 +12,14 @@
 extern "C" {
 #endif
 
-#define BUFFLEN 512
-#define RECV_FLAGS 0
-    
-int init_udp (int);
+#include <netinet/in.h>
 
+#define BUFFLEN 128
+#define RECV_FLAGS 0
+
+typedef int (* udp_handler)(char *, int, struct sockaddr_in *, int);
+int init_udp (int);
+void add_handler (udp_handler);
 
 #ifdef	__cplusplus
 }

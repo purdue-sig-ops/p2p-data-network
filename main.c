@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.c
  * Author: caleb
  *
@@ -11,7 +11,7 @@
 #include "peer_recv.h"
 
 /*
- * 
+ *
  */
 int main(int argc, char** argv) {
 

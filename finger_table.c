@@ -15,7 +15,7 @@ finger_table * finger_table_alloc(id * my_id)
 	return t;
 }
 
-void * finger_table_free(finger_table * t)
+void finger_table_free(finger_table * t)
 {
 	//free the finger table
 	int i;
