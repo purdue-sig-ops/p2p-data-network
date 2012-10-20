@@ -15,7 +15,7 @@
  */
 int main(int argc, char** argv) {
 
-    init_udp(1597);
+    init_listener(1597);
     return (EXIT_SUCCESS);
 }
 

@@ -1,51 +1,85 @@
 #include "peer_recv.h"
 
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 
-#include "util.h"
+static void _init_listener (char *);
 
-udp_handler handler;
-
-int init_udp (int port)
+void init_listener (int port)
 {
-    struct sockaddr_in sin, sender;
-    int sock_fd, slen, recv_len;
-    //initialize an input buffer
-    char * buf = (char *)malloc(BUFFLEN * sizeof(char));
-    if (buf == 0)
-        error("Buffer failed to initialize.");
+    //can be allocated on stack...only used beneath this stack frame
+    char port_str[8];
+    sprintf(port_str, "%d", port);
+    printf("%s\n", port_str);
+    
+    _init_listener(port_str);
+}
 
-    slen = sizeof(sender);
-    sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
-
-    if (sock_fd < 0)
-        error("Socket failed to initialize.");
-	//clear and set the ip addresses
-    memset((char *) &sin, 0, sizeof(sin));
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(port);
-    sin.sin_addr.s_addr = htonl(INADDR_ANY);
-	//bind the socket
-    if (bind(sock_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
-        error("Socket failed to bind.");
-	//receive packets in a loop
-
-	printf("Starting receive loop.\r\n");
-
-    while (1)
+static void _init_listener (char * port)
+{
+    struct addrinfo hints, * serv, * ptr;
+    struct sockaddr incoming;
+    char buffer[512];
+    
+    char * ipv;
+    void * addr;
+    int master, slave;
+    
+    int status, len;
+    len = sizeof(incoming);
+    
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;        //deal with ip version for me
+    hints.ai_socktype = SOCK_STREAM;    //TCP
+    hints.ai_flags = AI_PASSIVE;        //do things for me
+    
+    status = getaddrinfo(NULL, port, &hints, &serv);
+    //getaddrinfo returns non-zero value on error
+    if (status != 0)
     {
-        recv_len = recvfrom(sock_fd, buf, BUFFLEN, RECV_FLAGS, (struct sockaddr *)&sender, &slen);
-        if (recv_len < 0)
-            error("Function recvfrom() failed.");
-        printf("Received packet.");
+        perror("Failed to get local address information.\n");
+        exit(1);
     }
-
-    return 1;
+    
+    for (ptr = serv; ptr != NULL; ptr = ptr->ai_next)
+    {
+        master = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+        if (master < 0)
+        {
+            perror("Failed to create a socket.\n");
+            continue;
+        }
+        
+        status = bind(master, ptr->ai_addr, ptr->ai_addrlen);
+        if (status == 0)
+        {
+            break;
+        }
+        
+        close(master);     //if it didn't bind...
+    }
+    
+    if (status != 0)
+    {
+        perror("Failed to bind the socket to an IP address.\n");
+        exit(1);
+    }
+    
+    status = listen(master, 8);
+    if (status != 0)
+    {
+        perror("I have no fucking idea...\n");
+        exit(1);
+    }
+    
+    while (slave = accept(master, &incoming, &len))
+    {
+    	read(slave, buffer, 512);
+    	printf("%s\n", buffer);
+    }
 }

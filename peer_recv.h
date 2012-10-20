@@ -17,9 +17,7 @@ extern "C" {
 #define BUFFLEN 128
 #define RECV_FLAGS 0
 
-typedef int (* udp_handler)(char *, int, struct sockaddr_in *, int);
-int init_udp (int);
-void add_handler (udp_handler);
+void init_listener (int);
 
 #ifdef	__cplusplus
 }
