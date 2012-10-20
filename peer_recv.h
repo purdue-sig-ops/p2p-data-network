@@ -1,23 +1,22 @@
-/*
- * File:   peer_recv.h
- * Author: caleb
- *
- * Created on September 22, 2012, 6:21 AM
- */
-
 #ifndef PEER_RECV_H
 #define	PEER_RECV_H
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-#include <netinet/in.h>
-
-#define BUFFLEN 128
+    
+#include "util/list.h"
+#include <semaphore.h>
+    
+#define BUFFLEN 512
 #define RECV_FLAGS 0
+#define QUEUELEN 16
+#define THREADCOUNT 4
+    
+    
+    typedef void (* tcp_handler) (int sock);
+    void init_listener (char *, tcp_handler);
 
-void init_listener (int);
 
 #ifdef	__cplusplus
 }
