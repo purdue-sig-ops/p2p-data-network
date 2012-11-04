@@ -5,6 +5,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -36,4 +37,19 @@ int send_to (struct in_addr * ip, char * buffer, int buffer_len)
 	memset((char *)&(addr.sin_addr), 0, sizeof(struct in_addr));
 
 	return send_length;
+}
+
+int open (struct addrinfo * dest)
+{
+	int sockfd, status;
+
+	sockfd = socket(dest->ai_family, dest->ai_socktype, dest->ai_protocol);
+	if (sockfd != -1)
+	{
+		status = connect(sockfd, dest->ai_addr, dest->ai_addrlen);
+		if (status != -1)
+			return sockfd;
+	}
+
+	return -1;
 }

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <netdb.h>
+
 #include "peer_recv.h"
 #include "util.h"
 
@@ -9,10 +11,15 @@
 void comm_handler (int);
 
 /*
- * 
+ *
  */
 int main(int argc, char** argv) {
-    init_listener(CHORD_COMM, comm_handler);
+	struct addrinfo local;
+    int sockfd;
+
+	init_listener(CHORD_COMM, comm_handler, &local);
+	printf("passed listener\n");
+
     return (EXIT_SUCCESS);
 }
 

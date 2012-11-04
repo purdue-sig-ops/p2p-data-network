@@ -5,5 +5,6 @@
 
 void init_send (int);
 int send_to (struct in_addr *, char *, int);
+int open (struct addrinfo *);
 
 #endif
