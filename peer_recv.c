@@ -16,6 +16,7 @@
 
 //custom libraries used
 #include "util/list.h"
+#include "util/util.h"
 
 static lock_list slave_list;
 static tcp_handler handler;
@@ -55,7 +56,7 @@ void init_listener (char * port, tcp_handler handle, struct addrinfo * local)
     status = getaddrinfo(NULL, port, &hints, &serv);
     if (status != 0)
     {
-        perror("Failed to get local address information.\n");
+        perror("Failed at getaddrinfo.");
         exit(1);
     }
 
@@ -65,7 +66,7 @@ void init_listener (char * port, tcp_handler handle, struct addrinfo * local)
         master = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (master < 0)
         {
-            perror("Failed to create a socket.\n");
+            perror("Failed at socket.");
             continue;
         }
 
@@ -83,19 +84,19 @@ void init_listener (char * port, tcp_handler handle, struct addrinfo * local)
 
     if (status != 0)
     {
-        perror("Failed to bind the socket to an IP address.\n");
+        perror("Failed at bind.");
         exit(1);
     }
 
     status = listen(master, 8);
     if (status != 0)
     {
-        perror("I have no fucking idea...\n");
+        perror("Failed at listen.");
         exit(1);
     }
 
 	temp_master = master;
-	pthread_create(&listener, NULL, (void * (*) (void *))listener_thread, (void *)temp_master);
+	pthread_create(&listener, NULL, (thread_ptr)listener_thread, (void *)temp_master);
 }
 
 /*
