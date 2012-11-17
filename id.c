@@ -1,15 +1,26 @@
 #include <string.h>
 #include <stdlib.h>
-#include <openssl/sha.h>
+//#include <openssl/sha.h>
 #include "id.h"
 
-id * id_alloc(const unsigned char * data, unsigned long size)
+id * id_alloc(const char * data)
 {
 	//allocate space for the id
-	id * ident = malloc(sizeof(id));
-	ident->data = malloc(M / 8);
-	//SHA1(data, size, ident->data);
+	id * ident = (id*)malloc(sizeof(id));
+	ident->data = (char*)malloc(M / 8);
+	memcpy(ident->data, data, M / 8);
 	return ident;
+}
+
+id * id_alloc_hash(const unsigned char * d, unsigned long n)
+{
+/*
+	id * ident = (id*)malloc(sizeof(id));
+	ident->data = (char*)malloc(M / 8);
+	SHA1(d, n, (unsigned char*)ident->data);
+	return ident;
+*/
+	return NULL;
 }
 
 id * id_copy(id * ident)
@@ -47,7 +58,7 @@ int id_compare(id * l, id * r)
 }
 
 //helper function to directly get an id with data specified in the parameter - no copying
-static id * id_load(int8_t * data)
+static id * id_load(char * data)
 {
     id * ret = malloc(sizeof(id));
     ret->data = data;

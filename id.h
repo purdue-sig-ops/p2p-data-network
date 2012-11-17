@@ -8,11 +8,12 @@
 typedef struct
 {
 	//M Bit Identifier
-	unsigned char * data;
+	char * data;
 } id;
 
 //Allocate a ID
-id * id_alloc(const unsigned char * data, unsigned long size);
+id * id_alloc(const char * data);
+id * id_alloc_hash(const unsigned char * d, unsigned long n);
 //Free a ID
 void id_free(id * ident);
 //Copy a ID

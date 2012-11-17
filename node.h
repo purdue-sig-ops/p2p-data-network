@@ -2,6 +2,7 @@
 #define NODE_H
 
 #include<inttypes.h>
+#include<sys/socket.h>
 
 #include "id.h"
 
@@ -10,15 +11,15 @@ typedef struct
 	//id of node
 	id * ident;
 	//ip address of node
-	int32_t ip;
+	struct sockaddr * ip;
 } node;
 
 //Allocate a node with the ip address
-node * node_alloc(int32_t ip);
+node * node_alloc(const char * ip);
 //Free a node
 void node_free(node * n);
 //Get the id of the node
 id * node_get_id(node * n);
 //Get the ip address of the node
-int32_t node_get_ip(node * n);
+struct sockaddr * node_get_ip(node * n);
 #endif

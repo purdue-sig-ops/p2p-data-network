@@ -28,21 +28,5 @@ void comm_handler (int sock_fd)
     char buffer[64];
     read(sock_fd, buffer, 64);
     printf("%s\n", buffer);
-    
-    switch (buffer){
-	case (!strncmp("100", buffer, 3)):
-		break;
-	case (!strncmp("110", buffer, 3)):
-		break;
-	case (!strncmp("120", buffer, 3)):
-		break;
-	case (!strncmp("130", buffer, 3)):
-		write(sock_fd, "OK", 2);
-		break;
-	default: 
-		printf("Invalid socket descriptor.");
-    		break;
-    	}
-    	
     close(sock_fd);
 }
