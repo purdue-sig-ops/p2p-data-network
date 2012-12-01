@@ -1,41 +1,27 @@
 #include "parse.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-static message * message_alloc(int code, id * ident, char * addr)
+//init a msg
+static void msg_init(msg * dst, int code, char * hash_buf, char * addr)
 {
-	message * ret = (message*)malloc(sizeof(message));
-	ret->code = code;
-	ret->ident = ident;
-	ret->addr = addr;
-	return ret;
-}
-
-void message_free(message * msg)
-{
-	if(msg->ident != NULL)
-		id_free(msg->ident);
-	if(msg->addr != NULL)
-		free(msg->addr);
-	free(msg);
-}
-
-message * parse_message(const char * buffer)
-{
-	int code = -1;
-	id * ident = NULL;
-	char * addr = NULL;
-	char * hash_buf = NULL;
-	const char * fmt = NULL;
-	message * _parse_message(const char * fmt)
+	dst->code = code;
+	if(hash_buf != NULL)
+		id_init(&dst->ident, hash_buf);
+	if(addr != NULL)
 	{
-		addr = (char*)malloc(37 + 1);
-		hash_buf = (char*)malloc(M/8 + 1);
-		sscanf(buffer, fmt, hash_buf, addr);
-		ident = id_alloc(hash_buf);
-		free(hash_buf);
-		return message_alloc(code, ident, addr);
+		//TODO: Parse ip address
 	}
+}
+
+//parse a message from the tcp buffer
+void parse_message(msg * dst, const char * buffer)
+{
+	//message code
+	int code = -1;
+	//format string for extracting message details
+	const char * fmt = NULL;
+	char hash_buf[M/8 + 1];
+	char addr[37 + 1];
 	sscanf(buffer, "%d", &code);
 	switch(code)
 	{
@@ -43,15 +29,20 @@ message * parse_message(const char * buffer)
 		case 100:
 			fmt = "%*d %*s %s %*s %s";
 			break;
+		//successor response
 		case 200:
 			fmt = "%*d %*s %s";
 			break;
+
+		//predecessor response
 		case 210:
 			fmt = "%*d %*s %*s %s %*s %s";
 			break;
+		//notify message
 		case 120:
 			fmt = "%*d %*s %*s %s";
 			break;
+		//status response
 		case 320:
 			fmt = "%*d %*s %s %*s %s";
 			break;
@@ -61,7 +52,9 @@ message * parse_message(const char * buffer)
 		case 230:
 		case 331:
 		case 332:
-			return message_alloc(code, NULL, NULL);
+			msg_init(dst, code, NULL, NULL);
+			return;
 	}
-	return _parse_message(fmt);
-};
+	sscanf(buffer, fmt, hash_buf, addr);
+	msg_init(dst, code, hash_buf, addr);
+}

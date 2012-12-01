@@ -3,33 +3,20 @@
 //#include <openssl/sha.h>
 #include "id.h"
 
-id * id_alloc(const char * data)
+
+void id_init(id * ident, const char * data)
 {
-	//allocate space for the id
-	id * ident = (id*)malloc(sizeof(id));
-	ident->data = (char*)malloc(M / 8);
 	memcpy(ident->data, data, M / 8);
-	return ident;
 }
 
-id * id_alloc_hash(const unsigned char * d, unsigned long n)
+void id_alloc_hash(id * ident, const unsigned char * d, unsigned long n)
 {
-/*
-	id * ident = (id*)malloc(sizeof(id));
-	ident->data = (char*)malloc(M / 8);
-	SHA1(d, n, (unsigned char*)ident->data);
-	return ident;
-*/
-	return NULL;
+	//TODO: Implement
 }
 
-id * id_copy(id * ident)
+void id_copy(id * dest, id * src)
 {
-    //copy ident and return it
-    id * cpy = malloc(sizeof(id));
-    cpy->data = malloc(M / 8);
-    memcpy(cpy->data, ident->data, M / 8);
-    return cpy;
+    memcpy(dest->data, src->data, M / 8);
 }
 
 void id_free(id * ident)
@@ -57,36 +44,23 @@ int id_compare(id * l, id * r)
 	return 0;
 }
 
-//helper function to directly get an id with data specified in the parameter - no copying
-static id * id_load(char * data)
-{
-    id * ret = malloc(sizeof(id));
-    ret->data = data;
-    return ret;
-}
-
 //algorithm copied from ID.java in open-chord_1.0.5
 //open-chord.sourceforge.net
-id * id_add_p2(id * ident, int p)
+void id_add_p2(id * dest, id * src, int p)
 {
 	int index_of_byte = (M / 8) - 1 - (p / 8);
-	int8_t to_add[] = {1,2,4,8,16,32,64,-128};
-	int8_t value_to_add = to_add[p % 8];
-	int8_t old_value;
-	int8_t * copy;
+	char to_add[] = {1,2,4,8,16,32,64,-128};
+	char value_to_add = to_add[p % 8];
+	char old_value;
 	if(p >= 0 && p < M)
 	{
-		copy = malloc(M / 8);
-		memcpy(copy, ident->data, M / 8);
+		memcpy(dest->data, src->data, M / 8);
 		do
 		{
-			old_value = copy[index_of_byte];
-			copy[index_of_byte] += value_to_add;
+			old_value = dest->data[index_of_byte];
+			dest->data[index_of_byte] += value_to_add;
 			value_to_add = 1;
 		}
-		while(old_value < 0 && copy[index_of_byte] >= 0 && index_of_byte-- > 0);
-		return id_load(copy);
+		while(old_value < 0 && dest->data[index_of_byte] >= 0 && index_of_byte-- > 0);
 	}
-	else
-		return NULL;
 }

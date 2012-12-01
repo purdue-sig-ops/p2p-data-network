@@ -6,10 +6,10 @@
 typedef struct
 {
 	int code;
-	id * ident;
+	id ident;
 	char * addr;
-} message;
+} msg;
 
-message * parse_message(const char * buffer);
-void message_free(message * msg);
+void parse_msg(msg *, const char *);
+void msg_free(msg *);
 #endif

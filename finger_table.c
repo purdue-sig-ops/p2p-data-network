@@ -1,21 +1,13 @@
 #include "finger_table.h"
 #include <stdlib.h>
 
-finger_table * finger_table_alloc(id * my_id)
+//init the finger table
+void ft_init(finger_table * t, id * my_id)
 {
-	//allocate the finger table
-	int i;
-	finger_table * t = malloc(sizeof(finger_table));
-	t->my_id = id_copy(my_id);
-	t->nodes = malloc(sizeof(node*) * M);
-	for(i = 0; i < M; ++i)
-	{
-		t->nodes[i] = NULL;
-	}
-	return t;
+	id_copy(&t->my_id, my_id);
 }
 
-void finger_table_free(finger_table * t)
+void ft_free(finger_table * t)
 {
 	//free the finger table
 	int i;
@@ -24,59 +16,57 @@ void finger_table_free(finger_table * t)
 		if(t->nodes[i] != NULL)
 			node_free(t->nodes[i]);
 	}
-	free(t->nodes);
-	id_free(t->my_id);
-	free(t);
 }
 
 //The start operation as defined in the Chord Paper
-id * finger_table_start(finger_table * t, int i)
+int ft_start(finger_table * t,id * dst, int i)
 {
 	//if the index is valid, return the id + power of 2 needed
 	if(i > 0 && i <= M)
 	{
-		return id_add_p2(t->my_id, i - 1);
+		id_add_p2(dst, &t->my_id, i - 1);
+		return 0;
 	}
 	//otherwise, fail
 	else
-		return NULL;
+		return -1;
 }
 
 //Check if a id is in the interval of this finger as defined in the Chord paper
-int finger_table_interval(finger_table * t, int i, id * value)
+int ft_interval(finger_table * t, int i, id * value)
 {
-	id * low, * high;
+	id low,high;
 	//if the index is valid
 	if(i > 0 && i <= M)
 	{
 		//get the bounds of the interval
-		low = finger_table_start(t, i);
-		high = finger_table_start(t, (i + 1) % M);
+		ft_start(t, &low, i);
+		ft_start(t, &high, (i + 1) % M);
         //if high < low (interval wraps around circle), checks are diff
-        switch(id_compare(high, low))
+        switch(id_compare(&high, &low))
         {
             case 1:
-                return id_compare(low, value) <= 0 && id_compare(high, value) == 1;
+                return id_compare(&low, value) <= 0 && id_compare(&high, value) == 1;
             case -1:
-                return id_compare(low, value) <= 0 || id_compare(high, value) == 1;
-            default:
+                return id_compare(&low, value) <= 0 || id_compare(&high, value) == 1;
+            case 0:
                 return 0;
         }
     }
 }
 
-//set the finger node
-void finger_table_set_node(finger_table * t,int i, node * n)
-{
-	if(i > 0 && i <= M)
-		t->nodes[i] = n;
-}
 
-//look up the actual finger node - node operation as defined in Chord paper
-node * finger_table_node(finger_table * t, int i)
+//look up the actual finger node = node operation as defined in Chord paper
+node * ft_get(finger_table * t, int i)
 {
 	if(i > 0 && i <= M)
 		return t->nodes[i];
 	else
 		return NULL;
+}
+//set the finger node
+void ft_set(finger_table * t,int i, node * n)
+{
+	if(i > 0 && i <= M)
+		t->nodes[i] = n;
 }

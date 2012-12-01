@@ -8,19 +8,17 @@
 typedef struct
 {
 	//M Bit Identifier
-	char * data;
+	char data[M / 8];
 } id;
 
-//Allocate a ID
-id * id_alloc(const char * data);
-id * id_alloc_hash(const unsigned char * d, unsigned long n);
-//Free a ID
-void id_free(id * ident);
+//Init
+void id_init(id *, const char *);
+void id_init_hash(id *, const unsigned char *, unsigned long);
 //Copy a ID
-id * id_copy(id * ident);
+void id_copy(id *, id *);
 //Compare two IDs
-int id_compare(id * l, id * r);
-//Get an ID that is equal to (ident + 2^p)
-id * id_add_p2(id * ident, int p);
+int id_compare(id *, id *);
+//Add p^2 to src
+void id_add_p2(id *, id *, int);
 
 #endif
